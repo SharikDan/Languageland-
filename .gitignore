@@ -1,0 +1,74 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Widget Preview related
+.widget_preview/
+# 1. Переменные окружения и секреты (КРИТИЧНО ВАЖНО)
+.env
+.env.local
+.env.*.local
+*.keystore
+!debug.keystore
+
+# 2. Локальные настройки Android (путь к SDK)
+android/local.properties
+
+# 3. Мусор от Windows (у вас есть .DS_Store для Mac, но нет для Windows)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# 4. Node modules (если вы используете Flutter Web или JS-инструменты)
+node_modules/
+
+# 5. Файлы баз данных (если используете SQLite локально)
+*.sqlite
+*.sqlite-journal
+Get
+Run
+flutter
+org.gradle.process.ProcessExecutionException
+web_entrypoint.dart
