@@ -25,49 +25,49 @@ class LocalLlmService {
     _downloadProgress = 0.0;
 
     try {
-      debugPrint('⬇️ Начинаем установку модели...');
+      debugPrint('â¬‡ï¸ ÐÐ°Ñ‡Ð¸Ð½Ð°ÐµÐ¼ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²ÐºÑƒ Ð¼Ð¾Ð´ÐµÐ»Ð¸...');
       
-      // Добавляем обработку ошибок и таймаут
+      // Ð”Ð¾Ð±Ð°Ð²Ð»ÑÐµÐ¼ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÑƒ Ð¾ÑˆÐ¸Ð±Ð¾Ðº Ð¸ Ñ‚Ð°Ð¹Ð¼Ð°ÑƒÑ‚
       await FlutterGemma.installModel(
         modelType: ModelType.qwen,
       ).fromNetwork(_modelUrl).withProgress((progress) {
         _downloadProgress = progress / 100.0;
-        debugPrint('⬇️ Прогресс: ${progress.toStringAsFixed(1)}%');
+        debugPrint('â¬‡ï¸ ÐŸÑ€Ð¾Ð³Ñ€ÐµÑÑ: ${progress.toStringAsFixed(1)}%');
       }).install().timeout(
-        const Duration(minutes: 15), // Если за 15 минут не скачалось - ошибка
-        onTimeout: () => throw TimeoutException('Скачивание зависло. Проверь интернет.'),
+        const Duration(minutes: 15), // Ð•ÑÐ»Ð¸ Ð·Ð° 15 Ð¼Ð¸Ð½ÑƒÑ‚ Ð½Ðµ ÑÐºÐ°Ñ‡Ð°Ð»Ð¾ÑÑŒ - Ð¾ÑˆÐ¸Ð±ÐºÐ°
+        onTimeout: () => throw TimeoutException('Ð¡ÐºÐ°Ñ‡Ð¸Ð²Ð°Ð½Ð¸Ðµ Ð·Ð°Ð²Ð¸ÑÐ»Ð¾. ÐŸÑ€Ð¾Ð²ÐµÑ€ÑŒ Ð¸Ð½Ñ‚ÐµÑ€Ð½ÐµÑ‚.'),
       );
 
-      debugPrint('🧠 Загружаем модель в память...');
+      debugPrint('ðŸ§  Ð—Ð°Ð³Ñ€ÑƒÐ¶Ð°ÐµÐ¼ Ð¼Ð¾Ð´ÐµÐ»ÑŒ Ð² Ð¿Ð°Ð¼ÑÑ‚ÑŒ...');
       _model = await FlutterGemma.getActiveModel(
         maxTokens: 1024,
-        preferredBackend: PreferredBackend.gpu,
+        preferredBackend: PreferredBackend.cpu,
       );
 
       _chat = await _model!.createChat(
-        systemInstruction: 'Ты — Ая, милая девушка-учительница японского языка. Отвечай кратко.',
+        systemInstruction: 'Ð¢Ñ‹ â€” ÐÑ, Ð¼Ð¸Ð»Ð°Ñ Ð´ÐµÐ²ÑƒÑˆÐºÐ°-ÑƒÑ‡Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¸Ñ†Ð° ÑÐ¿Ð¾Ð½ÑÐºÐ¾Ð³Ð¾ ÑÐ·Ñ‹ÐºÐ°. ÐžÑ‚Ð²ÐµÑ‡Ð°Ð¹ ÐºÑ€Ð°Ñ‚ÐºÐ¾.',
       );
 
       _isReady = true;
-      debugPrint('✅ Нейросеть готова!');
+      debugPrint('âœ… ÐÐµÐ¹Ñ€Ð¾ÑÐµÑ‚ÑŒ Ð³Ð¾Ñ‚Ð¾Ð²Ð°!');
     } catch (e) {
-      debugPrint('❌ Ошибка LLM: $e');
+      debugPrint('âŒ ÐžÑˆÐ¸Ð±ÐºÐ° LLM: $e');
       _errorMsg = e.toString();
-      // Если произошла ошибка, сбрасываем прогресс, чтобы можно было попробовать снова
+      // Ð•ÑÐ»Ð¸ Ð¿Ñ€Ð¾Ð¸Ð·Ð¾ÑˆÐ»Ð° Ð¾ÑˆÐ¸Ð±ÐºÐ°, ÑÐ±Ñ€Ð°ÑÑ‹Ð²Ð°ÐµÐ¼ Ð¿Ñ€Ð¾Ð³Ñ€ÐµÑÑ, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¼Ð¾Ð¶Ð½Ð¾ Ð±Ñ‹Ð»Ð¾ Ð¿Ð¾Ð¿Ñ€Ð¾Ð±Ð¾Ð²Ð°Ñ‚ÑŒ ÑÐ½Ð¾Ð²Ð°
       _downloadProgress = 0.0; 
       throw Exception(_errorMsg);
     }
   }
 
   Future<String> generateResponse(String prompt) async {
-    if (!_isReady || _chat == null) return 'Нейросеть ещё загружается...';
+    if (!_isReady || _chat == null) return 'ÐÐµÐ¹Ñ€Ð¾ÑÐµÑ‚ÑŒ ÐµÑ‰Ñ‘ Ð·Ð°Ð³Ñ€ÑƒÐ¶Ð°ÐµÑ‚ÑÑ...';
     try {
       await _chat!.addQuery(Message.text(text: prompt, isUser: true));
       final response = await _chat!.generateChatResponse();
       if (response is TextResponse) return response.token;
-      return 'Неизвестный ответ.';
+      return 'ÐÐµÐ¸Ð·Ð²ÐµÑÑ‚Ð½Ñ‹Ð¹ Ð¾Ñ‚Ð²ÐµÑ‚.';
     } catch (e) {
-      return 'Ошибка: $e';
+      return 'ÐžÑˆÐ¸Ð±ÐºÐ°: $e';
     }
   }
 }
