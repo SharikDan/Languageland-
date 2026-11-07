@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:ayas_languageland/logic/services/local_llm_service.dart';
 import 'package:ayas_languageland/logic/services/audio_service.dart';
 import 'package:ayas_languageland/logic/services/ai_service.dart';
+import 'package:ayas_languageland/widgets/aya_loading_widget.dart'; // Импортируем наш новый виджет
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -57,7 +58,7 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {
           _isModelLoading = false;
           _useFallback = true;
-          _messages.add({'isUser': false, 'text': 'Oops! My neural network failed to load (not enough memory or bad internet). But I can still chat using my base brain! What do you want to talk about?'});
+          _messages.add({'isUser': false, 'text': 'Oops! My neural network failed to load. But I can still chat using my base brain!'});
         });
       }
     } finally {
@@ -110,6 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            // Шапка
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(color: cardColor, borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32))),
@@ -127,26 +129,32 @@ class _ChatScreenState extends State<ChatScreen> {
                 ],
               ),
             ),
-            if (_isModelLoading) Padding(padding: const EdgeInsets.all(24.0), child: LinearProgressIndicator(value: _progress > 0 ? _progress : null)),
+            
+            // Загрузка или Чат
             Expanded(
-              child: ListView.builder(
-                controller: _scrollController, padding: const EdgeInsets.all(24),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final msg = _messages[index]; final isUser = msg['isUser'] as bool;
-                  return Align(
-                    alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 16), padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
-                      decoration: BoxDecoration(color: isUser ? accent : cardColor, borderRadius: BorderRadius.circular(20)),
-                      child: Text(msg['text'], style: TextStyle(fontSize: 16, color: isUser ? Colors.white : textColor, height: 1.4)),
+              child: _isModelLoading
+                  ? AyaLoadingWidget(progress: _progress, message: 'Downloading Aya\'s Neural Network...')
+                  : ListView.builder(
+                      controller: _scrollController, padding: const EdgeInsets.all(24),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final msg = _messages[index]; final isUser = msg['isUser'] as bool;
+                        return Align(
+                          alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 16), padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
+                            decoration: BoxDecoration(color: isUser ? accent : cardColor, borderRadius: BorderRadius.circular(20)),
+                            child: Text(msg['text'], style: TextStyle(fontSize: 16, color: isUser ? Colors.white : textColor, height: 1.4)),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
+            
             if (_isTyping) Padding(padding: const EdgeInsets.only(left: 32, bottom: 16), child: Text('Aya is thinking...', style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic))),
+            
+            // Поле ввода
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: cardColor, borderRadius: const BorderRadius.vertical(top: Radius.circular(32))),
@@ -156,7 +164,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: TextField(
                       controller: _controller,
                       enabled: !_isModelLoading,
-                      decoration: InputDecoration(hintText: _isModelLoading ? 'Waiting...' : 'Type a message...', filled: true, fillColor: isDark ? const Color(0xFF23232F) : const Color(0xFFFFF5F8), border: OutlineInputBorder(borderRadius: BorderRadius.circular(999), borderSide: BorderSide.none)),
+                      decoration: InputDecoration(hintText: _isModelLoading ? 'Waiting for Aya...' : 'Type a message...', filled: true, fillColor: isDark ? const Color(0xFF23232F) : const Color(0xFFFFF5F8), border: OutlineInputBorder(borderRadius: BorderRadius.circular(999), borderSide: BorderSide.none)),
                       onSubmitted: _sendMessage,
                     ),
                   ),
