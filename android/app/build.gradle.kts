@@ -13,7 +13,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
@@ -31,9 +30,6 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             isShrinkResources = false
-            ndk {
-                debugSymbolLevel = "none" // Отключаем отладочные символы
-            }
         }
     }
 }
