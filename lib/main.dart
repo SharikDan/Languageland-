@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gemma/flutter_gemma.dart'; // <--- ДОБАВИЛИ ИМПОРТ
 import 'package:ayas_languageland/logic/services/app_state.dart';
 import 'package:ayas_languageland/logic/services/app_localizations.dart';
 import 'package:ayas_languageland/logic/services/audio_service.dart';
@@ -11,16 +12,18 @@ import 'package:ayas_languageland/ui/screens/welcome_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Жестко фиксируем горизонтальную ориентацию / Force landscape
+  // Скрываем системные панели и фиксируем ландшафт
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
-
-  // Скрываем системные панели (статус-бар и навигацию) / Hide system UI
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   try {
+    // Инициализируем движок нейросети (ОБЯЗАТЕЛЬНО для flutter_gemma)
+    await FlutterGemma.initialize();
+    
+    // Инициализируем остальные сервисы
     await AppState.load();
     await AudioService.init();
     await TtsService.instance.init();
