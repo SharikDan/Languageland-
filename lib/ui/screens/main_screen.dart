@@ -27,15 +27,22 @@ class _MainScreenState extends State<MainScreen> {
       valueListenable: AppLoc.lang,
       builder: (context, langCode, child) {
         final List<Widget> screens = [
-          MapScreen(), KanaScreen(), KanjiScreen(), VocabScreen(),
-          GrammarScreen(), ReviewScreen(), QuestsScreen(), ChatScreen(),
-          ProfileScreen(), SettingsScreen(),
+          const MapScreen(),
+          const KanaScreen(),
+          const KanjiScreen(),
+          const VocabScreen(),
+          const GrammarScreen(),
+          const ReviewScreen(),
+          const QuestsScreen(),
+          const ChatScreen(),
+          const ProfileScreen(),
+          const SettingsScreen(),
         ];
 
         return Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch, // Растягиваем на всю высоту
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SidebarMenu(
                 currentIndex: _currentIndex,

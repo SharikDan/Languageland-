@@ -15,7 +15,7 @@ class AppState {
   static List<Achievement> achievements = [];
   static Set<String> unlockedAchievements = {};
   static bool isDarkMode = false;
-  static String languageCode = 'en';
+  static String languageCode = 'ru';
   static bool isSoundEnabled = true;
   static bool isMusicEnabled = true;
   static bool isTTSEnabled = true;
@@ -30,7 +30,7 @@ class AppState {
     xp = prefs.getInt('xp') ?? 0;
     currentStreak = prefs.getInt('streak') ?? 0;
     isDarkMode = prefs.getBool('isDarkMode') ?? false;
-    languageCode = prefs.getString('languageCode') ?? 'en';
+    languageCode = prefs.getString('languageCode') ?? 'ru';
     userName = prefs.getString('userName') ?? '';
     userAvatar = prefs.getString('userAvatar') ?? 'joy';
     themeNotifier.value = isDarkMode;
