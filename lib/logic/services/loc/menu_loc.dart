@@ -1,0 +1,3 @@
+// Меню / Menu
+const Map<String, String> menuRu = {'map': 'Карта', 'kana': 'Кана', 'kanji': 'Кандзи', 'vocab': 'Слова', 'grammar': 'Грамм.', 'srs': 'SRS', 'quests': 'Квесты', 'profile': 'Профиль', 'settings': 'Настр.', 'chat': 'Чат с Аей'};
+const Map<String, String> menuEn = {'map': 'Map', 'kana': 'Kana', 'kanji': 'Kanji', 'vocab': 'Vocab', 'grammar': 'Grammar', 'srs': 'SRS', 'quests': 'Quests', 'profile': 'Profile', 'settings': 'Settings', 'chat': 'Chat'};

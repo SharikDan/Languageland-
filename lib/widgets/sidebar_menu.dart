@@ -1,46 +1,40 @@
-// Боковое меню навигации (7 пунктов, компактное под landscape)
 import 'package:flutter/material.dart';
+import 'package:ayas_languageland/logic/services/app_localizations.dart';
+import 'package:ayas_languageland/logic/services/audio_service.dart';
 
 class SidebarMenu extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
-
-  const SidebarMenu({
-    super.key,
-    required this.currentIndex,
-    required this.onTap,
-  });
+  const SidebarMenu({super.key, required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final items = <(IconData, String)>[
-      (Icons.map, 'Карта'),
-      (Icons.translate, 'Слова'),
-      (Icons.menu_book, 'Грамм.'),
-      (Icons.replay, 'SRS'),
-      (Icons.assignment, 'Квесты'),
-      (Icons.person, 'Профиль'),
-      (Icons.settings, 'Настр.'),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF1C1C28) : const Color(0xFFFCE4EC);
+    const accent = Color(0xFFE91E63);
+
+    // Адаптивная ширина меню (уже на телефоне) / Adaptive width
+    final isMobile = MediaQuery.of(context).size.width < 800;
+    final sidebarWidth = isMobile ? 64.0 : 80.0;
+    final iconSize = isMobile ? 22.0 : 26.0;
+
+    final items = [
+      (Icons.map_rounded, AppLoc.t('map')), (Icons.text_fields, AppLoc.t('kana')), (Icons.translate, AppLoc.t('kanji')),
+      (Icons.translate, AppLoc.t('vocab')), (Icons.menu_book, AppLoc.t('grammar')), (Icons.replay, AppLoc.t('srs')),
+      (Icons.assignment, AppLoc.t('quests')), (Icons.smart_toy, AppLoc.t('chat')), (Icons.person, AppLoc.t('profile')), (Icons.settings, AppLoc.t('settings')),
     ];
 
     return Container(
-      width: 72,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          right: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
-            width: 1,
-          ),
-        ),
-      ),
+      width: sidebarWidth,
+      height: double.infinity,
+      color: bgColor,
       child: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
               const SizedBox(height: 8),
-              for (int i = 0; i < items.length; i++)
-                _buildItem(context, i, items[i].$1, items[i].$2),
+              for (int i = 0; i < items.length; i++) 
+                _buildItem(context, i, items[i].$1, items[i].$2, isDark, accent, iconSize, isMobile),
               const SizedBox(height: 8),
             ],
           ),
@@ -49,52 +43,26 @@ class SidebarMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildItem(
-    BuildContext context,
-    int index,
-    IconData icon,
-    String label,
-  ) {
+  Widget _buildItem(BuildContext context, int index, IconData icon, String label, bool isDark, Color accent, double iconSize, bool isMobile) {
     final isSelected = currentIndex == index;
-
-    final color = isSelected
-        ? Theme.of(context).colorScheme.primary
-        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
-
+    final color = isSelected ? accent : (isDark ? Colors.grey.shade500 : Colors.grey.shade600);
+    
     return InkWell(
-      onTap: () => onTap(index),
+      onTap: () { AudioService.playSound('tap.mp3'); onTap(index); },
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 7),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context)
-                  .colorScheme
-                  .primaryContainer
-                  .withValues(alpha: 0.4)
-              : Colors.transparent,
-          border: Border(
-            left: BorderSide(
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.transparent,
-              width: 3,
-            ),
-          ),
-        ),
+        padding: EdgeInsets.symmetric(vertical: isMobile ? 6 : 10),
+        decoration: BoxDecoration(border: Border(left: BorderSide(color: isSelected ? accent : Colors.transparent, width: 4))),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 22),
+            Icon(icon, color: color, size: iconSize),
             const SizedBox(height: 2),
             Text(
-              label,
-              style: TextStyle(
-                fontSize: 9,
-                color: color,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-              textAlign: TextAlign.center,
+              label, 
+              textAlign: TextAlign.center, 
+              style: TextStyle(fontSize: isMobile ? 8 : 10, color: color, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

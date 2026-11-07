@@ -1,14 +1,15 @@
-// Модель для словарного слова
-class VocabWord {
+﻿class VocabWord {
   final String japanese;
   final String romaji;
   final String russian;
+  final String english;
   final String exampleSentence;
 
   const VocabWord({
     required this.japanese,
     required this.romaji,
     required this.russian,
+    required this.english,
     required this.exampleSentence,
   });
 
@@ -17,6 +18,7 @@ class VocabWord {
       'japanese': japanese,
       'romaji': romaji,
       'russian': russian,
+      'english': english,
       'exampleSentence': exampleSentence,
     };
   }
@@ -26,28 +28,8 @@ class VocabWord {
       japanese: json['japanese'] as String,
       romaji: json['romaji'] as String,
       russian: json['russian'] as String,
+      english: json['english'] as String? ?? json['russian'] as String,
       exampleSentence: json['exampleSentence'] as String,
     );
-  }
-
-  @override
-  String toString() {
-    return 'VocabWord(japanese: $japanese, russian: $russian)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    if (other is! VocabWord) {
-      return false;
-    }
-    return japanese == other.japanese;
-  }
-
-  @override
-  int get hashCode {
-    return japanese.hashCode;
   }
 }

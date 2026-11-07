@@ -13,11 +13,12 @@ class AyaImage extends StatelessWidget {
       width: size,
       height: size,
       fit: BoxFit.contain,
+      // Если картинки нет, покажет японский флаг, чтобы не ломать верстку
       errorBuilder: (_, __, ___) => SizedBox(
         width: size,
         height: size,
         child: const Center(
-          child: Text('🎌', style: TextStyle(fontSize: 48)),
+          child: Text('🎌', style: TextStyle(fontSize: 100)),
         ),
       ),
     );

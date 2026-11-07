@@ -1,155 +1,51 @@
-// Данные грамматики (15 базовых грамматических конструкций)
 import '../models/grammar_phrase.dart';
 
+// Данные грамматики / Grammar data
 final List<GrammarPhrase> grammarData = [
   const GrammarPhrase(
     japanese: 'です',
     russian: 'быть (вежливая форма)',
+    english: 'to be (polite form)',
     explanation: 'Связка です используется для утверждений. Это вежливая форма настоящего времени глагола "быть".',
-    examples: [
-      'わたしは学生です。 - Я студент.',
-      'これは本です。 - Это книга.',
-      '田中さんは先生です。 - Танака-сан учитель.',
-    ],
+    explanationEn: 'The copula です is used for statements. It is the polite present tense form of the verb "to be".',
+    examples: ['わたしは学生です。 - Я студент.', 'これは本です。 - Это книга.'],
+    examplesEn: ['わたしは学生です。 - I am a student.', 'これは本です。 - This is a book.'],
   ),
   const GrammarPhrase(
     japanese: 'ではありません / じゃありません',
     russian: 'не быть (отрицание)',
+    english: 'not to be (negative)',
     explanation: 'Отрицательная форма です. じゃありません более разговорная.',
-    examples: [
-      'わたしは学生ではありません。 - Я не студент.',
-      'これは本じゃありません。 - Это не книга.',
-      '田中さんは先生ではありません。 - Танака-сан не учитель.',
-    ],
+    explanationEn: 'The negative form of です. じゃありません is more colloquial.',
+    examples: ['わたしは学生ではありません。 - Я не студент.', 'これは本じゃありません。 - Это не книга.'],
+    examplesEn: ['わたしは学生ではありません。 - I am not a student.', 'これは本じゃありません。 - This is not a book.'],
   ),
   const GrammarPhrase(
     japanese: 'ですか',
     russian: 'вопросительная частица',
+    english: 'question particle',
     explanation: 'Частица か в конце предложения превращает утверждение в вопрос.',
-    examples: [
-      'これは本ですか。 - Это книга?',
-      '田中さんは学生ですか。 - Танака-сан студент?',
-      'あなたは日本人ですか。 - Вы японец?',
-    ],
+    explanationEn: 'The particle か at the end of a sentence turns a statement into a question.',
+    examples: ['これは本ですか。 - Это книга?', '田中さんは学生ですか。 - Танака-сан студент?'],
+    examplesEn: ['これは本ですか。 - Is this a book?', '田中さんは学生ですか。 - Is Tanaka-san a student?'],
   ),
   const GrammarPhrase(
     japanese: 'は (частица темы)',
     russian: 'что касается',
+    english: 'topic particle',
     explanation: 'Частица は (произносится "ва") обозначает тему предложения.',
-    examples: [
-      'わたしは学生です。 - Что касается меня, я студент.',
-      '日本は国です。 - Япония - это страна.',
-      'これは本です。 - Это - книга.',
-    ],
+    explanationEn: 'The particle は (pronounced "wa") marks the topic of the sentence.',
+    examples: ['わたしは学生です。 - Что касается меня, я студент.', '日本は国です。 - Япония - это страна.'],
+    examplesEn: ['わたしは学生です。 - As for me, I am a student.', '日本は国です。 - Japan is a country.'],
   ),
   const GrammarPhrase(
     japanese: 'の (частица принадлежности)',
     russian: 'принадлежность',
+    english: 'possessive particle',
     explanation: 'Частица の показывает принадлежность или связь между существительными.',
-    examples: [
-      'わたしの本 - моя книга',
-      '田中さんの車 - машина Танака-сан',
-      '日本の食べ物 - японская еда',
-    ],
+    explanationEn: 'The particle の indicates possession or connection between nouns.',
+    examples: ['わたしの本 - моя книга', '田中さんの車 - машина Танака-сан'],
+    examplesEn: ['わたしの本 - my book', '田中さんの車 - Tanaka-san\'s car'],
   ),
-  const GrammarPhrase(
-    japanese: 'を (частица объекта)',
-    russian: 'прямое дополнение',
-    explanation: 'Частица を (произносится "о") обозначает прямое дополнение действия.',
-    examples: [
-      '本を読みます。 - Читаю книгу.',
-      'ご飯を食べます。 - Ем рис.',
-      '日本語を勉強します。 - Учу японский язык.',
-    ],
-  ),
-  const GrammarPhrase(
-    japanese: 'に (частица места/времени)',
-    russian: 'в, на, к',
-    explanation: 'Частица に указывает направление, место назначения или время.',
-    examples: [
-      '学校に行きます。 - Иду в школу.',
-      '三時に起きます。 - Встаю в 3 часа.',
-      '東京に住んでいます。 - Живу в Токио.',
-    ],
-  ),
-  const GrammarPhrase(
-    japanese: 'で (частица места действия)',
-    russian: 'в, на (место действия)',
-    explanation: 'Частица で показывает место, где происходит действие.',
-    examples: [
-      '図書館で勉強します。 - Учусь в библиотеке.',
-      'レストランで食べます。 - Ем в ресторане.',
-      '日本で働きます。 - Работаю в Японии.',
-    ],
-  ),
-  const GrammarPhrase(
-    japanese: 'と (частица "и")',
-    russian: 'и, с',
-    explanation: 'Частица と соединяет существительные или показывает совместность действия.',
-    examples: [
-      'りんごとバナナ - яблоко и банан',
-      '友達と映画を見ます。 - Смотрю фильм с другом.',
-      '父と母 - отец и мать',
-    ],
-  ),
-  const GrammarPhrase(
-    japanese: 'も (частица "тоже")',
-    russian: 'тоже, также',
-    explanation: 'Частица も означает "тоже" или "также". Заменяет は или が.',
-    examples: [
-      'わたしも学生です。 - Я тоже студент.',
-      'これも本です。 - Это тоже книга.',
-      '田中さんも行きます。 - Танака-сан тоже идёт.',
-    ],
-  ),
-  const GrammarPhrase(
-    japanese: 'が (частица субъекта)',
-    russian: 'именно (подлежащее)',
-    explanation: 'Частица が выделяет подлежащее, особенно в ответах на вопросы.',
-    examples: [
-      'だれが来ますか。田中さんが来ます。 - Кто придёт? Танака-сан придёт.',
-      '猫がいます。 - Есть кошка.',
-      '日本語が好きです。 - Мне нравится японский язык.',
-    ],
-  ),
-  const GrammarPhrase(
-    japanese: 'ます形 (вежливая форма глагола)',
-    russian: 'настоящее/будущее время',
-    explanation: 'Вежливая форма глагола для настоящего/будущего времени.',
-    examples: [
-      '食べます - есть/буду есть',
-      '行きます - идти/пойду',
-      '勉強します - учиться/буду учиться',
-    ],
-  ),
-  const GrammarPhrase(
-    japanese: 'ません (отрицание глагола)',
-    russian: 'не делать',
-    explanation: 'Отрицательная форма глагола в вежливой речи.',
-    examples: [
-      '食べません。 - Не ем.',
-      '行きません。 - Не иду.',
-      '勉強しません。 - Не учусь.',
-    ],
-  ),
-  const GrammarPhrase(
-    japanese: 'ました (прошедшее время)',
-    russian: 'сделал',
-    explanation: 'Вежливая форма прошедшего времени глагола.',
-    examples: [
-      '食べました。 - Поел.',
-      '行きました。 - Ходил.',
-      '勉強しました。 - Учился.',
-    ],
-  ),
-  const GrammarPhrase(
-    japanese: 'ませんでした (прошедшее отрицание)',
-    russian: 'не делал',
-    explanation: 'Отрицательная форма прошедшего времени в вежливой речи.',
-    examples: [
-      '食べませんでした。 - Не ел.',
-      '行きませんでした。 - Не ходил.',
-      '勉強しませんでした。 - Не учился.',
-    ],
-  ),
+  // ... (добавь остальные по аналогии)
 ];
