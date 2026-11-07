@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
-import 'dart:io';
 
 class LocalLlmService {
   static final LocalLlmService instance = LocalLlmService._();
@@ -17,7 +16,6 @@ class LocalLlmService {
   String _errorMsg = '';
   String get errorMsg => _errorMsg;
 
-  // Используем МАЛЕНЬКУЮ модель (около 400 МБ), чтобы она влезла в RAM телефона
   final String _modelUrl = 'https://huggingface.co/litert-community/Qwen2.5-0.5B-Instruct/resolve/main/Qwen2.5-0.5B-Instruct_multi-prefill-seq_q8_ekv1280.task?download=true';
 
   Future<void> init() async {
@@ -49,10 +47,7 @@ class LocalLlmService {
     } catch (e) {
       debugPrint('❌ Ошибка LLM: $e');
       _errorMsg = e.toString();
-      // Если модель скачалась криво, удаляем её
-      try {
-        await FlutterGemma.deleteModel();
-      } catch (_) {}
+      // Не удаляем модель, просто сообщаем об ошибке
       throw Exception(_errorMsg);
     }
   }
