@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:ayas_languageland/logic/services/local_llm_service.dart';
 import 'package:ayas_languageland/logic/services/audio_service.dart';
 import 'package:ayas_languageland/logic/services/ai_service.dart';
-import 'package:ayas_languageland/widgets/aya_loading_widget.dart'; // Импортируем наш новый виджет
+import 'package:ayas_languageland/widgets/aya_loading_widget.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -19,6 +19,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isTyping = false, _isModelLoading = true;
   bool _useFallback = false;
   double _progress = 0.0;
+  String _errorMsg = '';
   Timer? _progressTimer;
 
   @override
@@ -32,12 +33,14 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _isModelLoading = false;
         _useFallback = true;
-        _messages.add({'isUser': false, 'text': 'Hello! I am Aya. In the browser I work in lightweight mode. But on the phone I will become a real AI!'});
+        _messages.add({'isUser': false, 'text': 'Hello! I am Aya. In the browser I work in lightweight mode.'});
       });
     }
   }
 
   Future<void> _loadModel() async {
+    setState(() { _isModelLoading = true; _errorMsg = ''; });
+    
     _progressTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       if (mounted && !LocalLlmService.instance.isReady) {
         setState(() => _progress = LocalLlmService.instance.downloadProgress);
@@ -58,6 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {
           _isModelLoading = false;
           _useFallback = true;
+          _errorMsg = e.toString(); // Сохраняем ошибку для отображения
           _messages.add({'isUser': false, 'text': 'Oops! My neural network failed to load. But I can still chat using my base brain!'});
         });
       }
@@ -111,7 +115,6 @@ class _ChatScreenState extends State<ChatScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Шапка
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(color: cardColor, borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32))),
@@ -126,11 +129,27 @@ class _ChatScreenState extends State<ChatScreen> {
                       Text(_isModelLoading ? 'Loading...' : (_useFallback ? 'Fallback Mode' : 'Online'), style: TextStyle(fontSize: 12, color: _isModelLoading ? Colors.orange : (_useFallback ? Colors.blue : Colors.green.shade600), fontWeight: FontWeight.bold)),
                     ],
                   ),
+                  // Кнопка Повторить, если упало
+                  if (_errorMsg.isNotEmpty)
+                    IconButton(
+                      icon: const Icon(Icons.refresh, color: accent),
+                      tooltip: 'Retry Loading AI',
+                      onPressed: () {
+                        setState(() { _errorMsg = ''; _useFallback = false; });
+                        _loadModel();
+                      },
+                    )
                 ],
               ),
             ),
             
-            // Загрузка или Чат
+            if (_errorMsg.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: Colors.red.withValues(alpha: 0.1),
+                child: Text('Error: $_errorMsg', style: const TextStyle(color: Colors.red, fontSize: 12)),
+              ),
+
             Expanded(
               child: _isModelLoading
                   ? AyaLoadingWidget(progress: _progress, message: 'Downloading Aya\'s Neural Network...')
@@ -154,7 +173,6 @@ class _ChatScreenState extends State<ChatScreen> {
             
             if (_isTyping) Padding(padding: const EdgeInsets.only(left: 32, bottom: 16), child: Text('Aya is thinking...', style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic))),
             
-            // Поле ввода
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: cardColor, borderRadius: const BorderRadius.vertical(top: Radius.circular(32))),
