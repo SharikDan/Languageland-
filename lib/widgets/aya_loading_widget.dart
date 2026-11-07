@@ -1,5 +1,5 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:ayas_languageland/widgets/aya_image.dart';
 
 class AyaLoadingWidget extends StatefulWidget {
   final double progress;
@@ -16,7 +16,7 @@ class _AyaLoadingWidgetState extends State<AyaLoadingWidget> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat();
   }
 
   @override
@@ -36,119 +36,92 @@ class _AyaLoadingWidgetState extends State<AyaLoadingWidget> with SingleTickerPr
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Анимация: Вращающееся кольцо + Пульсация
+          // Анимация: Вращающееся кольцо
           AnimatedBuilder(
             animation: _controller,
             builder: (context, child) {
-              return Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Вращающееся пунктирное кольцо
-                  Transform.rotate(
-                    angle: _controller.value * 2 * 3.14159,
-                    child: CustomPaint(
-                      size: const Size(160, 160),
-                      painter: _DashedCirclePainter(color: accent.withValues(alpha: 0.4)),
-                    ),
-                  ),
-                  // Пульсирующий аватар
-                  Transform.scale(
-                    scale: 1.0 + (_controller.value * 0.1),
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1C1C28) : Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(color: accent.withValues(alpha: 0.2), blurRadius: 20, spreadRadius: 5)],
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: AyaImage(emotion: 'neutral', size: 100),
-                      ),
-                    ),
-                  ),
-                ],
+              return Transform.rotate(
+                angle: _controller.value * 2 * math.pi,
+                child: CustomPaint(
+                  size: const Size(140, 140),
+                  painter: _SpinnerPainter(color: accent),
+                ),
               );
             },
           ),
           const SizedBox(height: 32),
           
-          // Текст
           Text(
             widget.message,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
+            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           
-          // Прогресс-бар
-          SizedBox(
-            width: 300,
+          // Огромный красивый прогресс-бар
+          Container(
+            width: 400, // Очень широкий, чтобы было видно на весь экран
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF23232F) : Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: accent.withValues(alpha: 0.3), width: 2),
+            ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(999),
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0, end: widget.progress),
-                duration: const Duration(milliseconds: 500),
-                builder: (context, value, child) {
-                  return LinearProgressIndicator(
-                    value: value > 0 ? value : null, // Если 0, показываем "бесконечную" загрузку
-                    minHeight: 12,
-                    backgroundColor: isDark ? const Color(0xFF23232F) : Colors.grey.shade200,
-                    color: accent,
-                  );
-                },
+              child: LinearProgressIndicator(
+                value: widget.progress > 0 ? widget.progress : null, // Если 0 - бесконечная загрузка
+                minHeight: 20,
+                backgroundColor: Colors.transparent,
+                color: accent,
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           
-          // Проценты
+          // Красивый текст с процентами
           if (widget.progress > 0)
             Text(
               '${(widget.progress * 100).toStringAsFixed(1)}%',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: accent),
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: accent),
             )
           else
             Text(
-              'Please wait...',
-              style: TextStyle(fontSize: 14, color: subTextColor),
+              'Connecting to server...',
+              style: TextStyle(fontSize: 18, color: subTextColor, fontWeight: FontWeight.w600),
             ),
+
+          const SizedBox(height: 24),
+          Text(
+            'Please keep the app open and screen on.\nThe download will take a few minutes.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, color: subTextColor),
+          ),
         ],
       ),
     );
   }
 }
 
-// Кастомный "художник" для рисования пунктирного круга
-class _DashedCirclePainter extends CustomPainter {
+// Кастомный "художник" для рисования красивых спиннеров
+class _SpinnerPainter extends CustomPainter {
   final Color color;
-  _DashedCirclePainter({required this.color});
+  _SpinnerPainter({required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4;
+      ..strokeWidth = 6
+      ..strokeCap = StrokeCap.round;
 
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
     
-    // Рисуем 12 пунктирных линий по кругу
-    for (int i = 0; i < 12; i++) {
-      final angle = (i * 3.14159 * 2) / 12;
-      final start = Offset(center.dx + radius * 0.9 * _cos(angle), center.dy + radius * 0.9 * _sin(angle));
-      final end = Offset(center.dx + radius * _cos(angle), center.dy + radius * _sin(angle));
-      canvas.drawLine(start, end, paint);
-    }
-  }
-
-  double _sin(double x) => (x % (2 * 3.14159)) < 3.14159 ? _mathSin(x) : -_mathSin(x - 3.14159);
-  double _cos(double x) => _sin(x + 3.14159 / 2);
-  double _mathSin(double x) {
-    // Упрощенный синус, чтобы не импортировать dart:math
-    return (4 / 3.14159) * x - (4 / (3.14159 * 3.14159)) * x * x.abs(); 
+    // Рисуем дугу (3/4 круга)
+    final rect = Rect.fromCircle(center: center, radius: radius);
+    canvas.drawArc(rect, 0, math.pi * 1.5, false, paint);
   }
 
   @override

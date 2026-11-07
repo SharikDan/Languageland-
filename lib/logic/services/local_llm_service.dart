@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 
@@ -24,13 +25,18 @@ class LocalLlmService {
     _downloadProgress = 0.0;
 
     try {
-      debugPrint('⬇️ Устанавливаем модель...');
+      debugPrint('⬇️ Начинаем установку модели...');
       
+      // Добавляем обработку ошибок и таймаут
       await FlutterGemma.installModel(
         modelType: ModelType.qwen,
       ).fromNetwork(_modelUrl).withProgress((progress) {
         _downloadProgress = progress / 100.0;
-      }).install();
+        debugPrint('⬇️ Прогресс: ${progress.toStringAsFixed(1)}%');
+      }).install().timeout(
+        const Duration(minutes: 15), // Если за 15 минут не скачалось - ошибка
+        onTimeout: () => throw TimeoutException('Скачивание зависло. Проверь интернет.'),
+      );
 
       debugPrint('🧠 Загружаем модель в память...');
       _model = await FlutterGemma.getActiveModel(
@@ -47,7 +53,8 @@ class LocalLlmService {
     } catch (e) {
       debugPrint('❌ Ошибка LLM: $e');
       _errorMsg = e.toString();
-      // Не удаляем модель, просто сообщаем об ошибке
+      // Если произошла ошибка, сбрасываем прогресс, чтобы можно было попробовать снова
+      _downloadProgress = 0.0; 
       throw Exception(_errorMsg);
     }
   }
