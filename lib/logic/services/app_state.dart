@@ -1,149 +1,93 @@
-import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ayas_languageland/models/achievement.dart';
 import 'package:ayas_languageland/models/card_progress.dart';
-import 'package:ayas_languageland/logic/services/app_localizations.dart';
+import 'package:ayas_languageland/logic/repositories/progress_repository.dart';
+import 'package:ayas_languageland/logic/repositories/settings_repository.dart';
+import 'package:ayas_languageland/logic/repositories/profile_repository.dart';
 
+/// AppState теперь выступает как ФАСАД для репозиториев.
+/// Весь существующий код (экраны, BLoC) продолжает работать без изменений!
 class AppState {
   AppState._();
 
-  // === ДАННЫЕ ===
-  static int xp = 0;
-  static int get level => ((xp ~/ 100) + 1).clamp(1, 999).toInt();
-  static int currentStreak = 0;
-  static Map<String, CardProgress> cards = {};
-  static Set<String> learnedWords = {};
-  static List<Achievement> achievements = [];
-  static Set<String> unlockedAchievements = {};
-  static bool isDarkMode = false;
-  static String languageCode = 'en';
-  static bool isSoundEnabled = true;
-  static bool isMusicEnabled = true;
-  static bool isTTSEnabled = true;
-  static String userName = '';
-  static String userAvatar = 'joy';
-  static int? pendingLevelUp;
-  static Achievement? pendingAchievement;
-  static final ValueNotifier<bool> themeNotifier = ValueNotifier<bool>(false);
+  static ProgressRepository get _progress => ProgressRepository.instance;
+  static SettingsRepository get _settings => SettingsRepository.instance;
+  static ProfileRepository get _profile => ProfileRepository.instance;
 
-  // === ОЧЕРЕДЬ СОХРАНЕНИЯ (фикс race condition) ===
-  static Timer? _saveDebounce;
-  static bool _isSaving = false;
-  static bool _needsResave = false;
+  // === ГЕТТЕРЫ / СЕТТЕРЫ (прокси к репозиториям) ===
+  static int get xp => _progress.xp;
+  static set xp(int v) => _progress.xp = v;
 
-  /// Планирует сохранение с задержкой 200 мс.
-  /// Батчит несколько быстрых вызовов (например, 5 правильных ответов в Кане).
-  static void _scheduleSave() {
-    _saveDebounce?.cancel();
-    _saveDebounce = Timer(const Duration(milliseconds: 200), () {
-      save().catchError((e) => debugPrint('⚠️ AppState.save failed: $e'));
-    });
-  }
+  static int get level => _progress.level;
+  static int get currentStreak => _progress.currentStreak;
+  static set currentStreak(int v) => _progress.currentStreak = v;
 
-  /// Атомарное сохранение с очередью. Не даёт двум save() работать одновременно.
-  static Future<void> save() async {
-    if (_isSaving) {
-      _needsResave = true;
-      return;
-    }
-    _isSaving = true;
-    try {
-      do {
-        _needsResave = false;
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setInt('xp', xp);
-        await prefs.setInt('streak', currentStreak);
-        await prefs.setBool('isDarkMode', isDarkMode);
-        await prefs.setString('languageCode', languageCode);
-        await prefs.setString('userName', userName);
-        await prefs.setString('userAvatar', userAvatar);
-        await prefs.setString('cards', jsonEncode(cards.map((k, v) => MapEntry(k, v.toJson()))));
-        await prefs.setStringList('learnedWords', learnedWords.toList());
-        await prefs.setStringList('unlockedAchievements', unlockedAchievements.toList());
-      } while (_needsResave); // Если во время сохранения пришли изменения — сохраняем ещё раз
-    } catch (e) {
-      debugPrint('❌ AppState.save failed: $e');
-      rethrow;
-    } finally {
-      _isSaving = false;
-    }
-  }
+  static Map<String, CardProgress> get cards => _progress.cards;
+  static set cards(Map<String, CardProgress> v) => _progress.cards = v;
 
-  // === ЗАГРУЗКА ===
+  static Set<String> get learnedWords => _progress.learnedWords;
+  static set learnedWords(Set<String> v) => _progress.learnedWords = v;
+
+  static Set<String> get unlockedAchievements => _progress.unlockedAchievements;
+  static set unlockedAchievements(Set<String> v) => _progress.unlockedAchievements = v;
+
+  static int? get pendingLevelUp => _progress.pendingLevelUp;
+  static set pendingLevelUp(int? v) => _progress.pendingLevelUp = v;
+
+  static Achievement? get pendingAchievement => _progress.pendingAchievement;
+  static set pendingAchievement(Achievement? v) => _progress.pendingAchievement = v;
+
+  static bool get isDarkMode => _settings.isDarkMode;
+  static set isDarkMode(bool v) => _settings.isDarkMode = v;
+
+  static String get languageCode => _settings.languageCode;
+  static set languageCode(String v) => _settings.languageCode = v;
+
+  static bool get isSoundEnabled => _settings.isSoundEnabled;
+  static set isSoundEnabled(bool v) => _settings.isSoundEnabled = v;
+
+  static bool get isMusicEnabled => _settings.isMusicEnabled;
+  static set isMusicEnabled(bool v) => _settings.isMusicEnabled = v;
+
+  static bool get isTTSEnabled => _settings.isTTSEnabled;
+  static set isTTSEnabled(bool v) => _settings.isTTSEnabled = v;
+
+  static String get userName => _profile.userName;
+  static set userName(String v) => _profile.userName = v;
+
+  static String get userAvatar => _profile.userAvatar;
+  static set userAvatar(String v) => _profile.userAvatar = v;
+
+  static ValueNotifier<bool> get themeNotifier => _settings.themeNotifier;
+
+  // === МЕТОДЫ (прокси к репозиториям) ===
   static Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    xp = prefs.getInt('xp') ?? 0;
-    currentStreak = prefs.getInt('streak') ?? 0;
-    isDarkMode = prefs.getBool('isDarkMode') ?? false;
-    languageCode = prefs.getString('languageCode') ?? 'en';
-    userName = prefs.getString('userName') ?? '';
-    userAvatar = prefs.getString('userAvatar') ?? 'joy';
-    themeNotifier.value = isDarkMode;
-    AppLoc.lang.value = languageCode;
-    final cardsJson = prefs.getString('cards') ?? '{}';
-    cards = (jsonDecode(cardsJson) as Map<String, dynamic>).map((k, v) => MapEntry(k, CardProgress.fromJson(v)));
-    learnedWords = (prefs.getStringList('learnedWords') ?? []).toSet();
-    unlockedAchievements = (prefs.getStringList('unlockedAchievements') ?? []).toSet();
+    await Future.wait([
+      _progress.load(),
+      _settings.load(),
+      _profile.load(),
+    ]);
   }
 
-  // === БИЗНЕС-ЛОГИКА (использует _scheduleSave — батчинг) ===
-  static void addXP(int amount) {
-    final oldLevel = level;
-    xp += amount;
-    if (level > oldLevel) pendingLevelUp = level;
-    _scheduleSave();
+  static Future<void> save() async {
+    await Future.wait([
+      _progress.save(),
+      _settings.save(),
+      _profile.save(),
+    ]);
   }
 
-  static void updateStreak() {
-    currentStreak++;
-    _scheduleSave();
-  }
+  static void addXP(int amount) => _progress.addXP(amount);
+  static void updateStreak() => _progress.updateStreak();
+  static String cardId(String type, String char) => _progress.cardId(type, char);
+  static void recordAnswer(String cardId, bool correct) => _progress.recordAnswer(cardId, correct);
+  
+  static void toggleTheme() => _settings.toggleTheme();
+  static void setLanguage(String code) => _settings.setLanguage(code);
 
-  static String cardId(String type, String char) => '${type}_$char';
-
-  static void recordAnswer(String cardId, bool correct) {
-    if (!cards.containsKey(cardId)) cards[cardId] = CardProgress(cardId: cardId);
-    if (correct) {
-      cards[cardId]!.recordCorrect();
-    } else {
-      cards[cardId]!.recordIncorrect();
-    }
-    _scheduleSave();
-  }
-
-  static void toggleTheme() {
-    isDarkMode = !isDarkMode;
-    themeNotifier.value = isDarkMode;
-    _scheduleSave();
-  }
-
-  static void setLanguage(String code) {
-    languageCode = code;
-    AppLoc.lang.value = code;
-    _scheduleSave();
-  }
-
-  // === КРИТИЧНЫЕ ДЕЙСТВИЯ (await напрямую, без дебаунса) ===
   static Future<void> resetProgress() async {
-    _saveDebounce?.cancel();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    xp = 0;
-    currentStreak = 0;
-    cards.clear();
-    learnedWords.clear();
-    unlockedAchievements.clear();
-    await save();
+    await _progress.reset();
   }
 
-  static void cheatProgress() {
-    xp = 5000;
-    currentStreak = 10;
-    learnedWords = {'a', 'i', 'u', 'e', 'o'};
-    unlockedAchievements = achievements.map((a) => a.id).toSet();
-    save().catchError((e) => debugPrint('cheat save error: $e'));
-  }
+  static void cheatProgress() => _progress.cheat();
 }
