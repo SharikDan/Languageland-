@@ -5,8 +5,8 @@ import 'package:ayas_languageland/logic/repositories/progress_repository.dart';
 import 'package:ayas_languageland/logic/repositories/settings_repository.dart';
 import 'package:ayas_languageland/logic/repositories/profile_repository.dart';
 
-/// AppState теперь выступает как ФАСАД для репозиториев.
-/// Весь существующий код (экраны, BLoC) продолжает работать без изменений!
+/// AppState Ñ‚ÐµÐ¿ÐµÑ€ÑŒ Ð²Ñ‹ÑÑ‚ÑƒÐ¿Ð°ÐµÑ‚ ÐºÐ°Ðº Ð¤ÐÐ¡ÐÐ” Ð´Ð»Ñ Ñ€ÐµÐ¿Ð¾Ð·Ð¸Ñ‚Ð¾Ñ€Ð¸ÐµÐ².
+/// Ð’ÐµÑÑŒ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ð¹ ÐºÐ¾Ð´ (ÑÐºÑ€Ð°Ð½Ñ‹, BLoC) Ð¿Ñ€Ð¾Ð´Ð¾Ð»Ð¶Ð°ÐµÑ‚ Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ñ‚ÑŒ Ð±ÐµÐ· Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ð¹!
 class AppState {
   AppState._();
 
@@ -14,7 +14,7 @@ class AppState {
   static SettingsRepository get _settings => SettingsRepository.instance;
   static ProfileRepository get _profile => ProfileRepository.instance;
 
-  // === ГЕТТЕРЫ / СЕТТЕРЫ (прокси к репозиториям) ===
+  // === Ð“Ð•Ð¢Ð¢Ð•Ð Ð« / Ð¡Ð•Ð¢Ð¢Ð•Ð Ð« (Ð¿Ñ€Ð¾ÐºÑÐ¸ Ðº Ñ€ÐµÐ¿Ð¾Ð·Ð¸Ñ‚Ð¾Ñ€Ð¸ÑÐ¼) ===
   static int get xp => _progress.xp;
   static set xp(int v) => _progress.xp = v;
 
@@ -60,7 +60,7 @@ class AppState {
 
   static ValueNotifier<bool> get themeNotifier => _settings.themeNotifier;
 
-  // === МЕТОДЫ (прокси к репозиториям) ===
+  // === ÐœÐ•Ð¢ÐžÐ”Ð« (Ð¿Ñ€Ð¾ÐºÑÐ¸ Ðº Ñ€ÐµÐ¿Ð¾Ð·Ð¸Ñ‚Ð¾Ñ€Ð¸ÑÐ¼) ===
   static Future<void> load() async {
     await Future.wait([
       _progress.load(),
@@ -89,5 +89,8 @@ class AppState {
     await _progress.reset();
   }
 
+  static Set<String> get claimedQuests => _progress.claimedQuests;
+  static void claimQuest(String questId, int reward) => _progress.claimQuest(questId, reward);
+  static bool checkDailyReward() => _progress.checkDailyReward();
   static void cheatProgress() => _progress.cheat();
 }

@@ -15,6 +15,8 @@ class ProgressRepository extends BaseRepository {
   Map<String, CardProgress> cards = {};
   Set<String> learnedWords = {};
   Set<String> unlockedAchievements = {};
+  Set<String> claimedQuests = {};
+  String lastLoginDate = '';
   
   int? pendingLevelUp;
   Achievement? pendingAchievement;
@@ -28,6 +30,8 @@ class ProgressRepository extends BaseRepository {
     cards = (jsonDecode(cardsJson) as Map<String, dynamic>).map((k, v) => MapEntry(k, CardProgress.fromJson(v)));
     learnedWords = (prefs.getStringList('learnedWords') ?? []).toSet();
     unlockedAchievements = (prefs.getStringList('unlockedAchievements') ?? []).toSet();
+    claimedQuests = (prefs.getStringList('claimedQuests') ?? []).toSet();
+    lastLoginDate = prefs.getString('lastLoginDate') ?? '';
   }
 
   @override
@@ -38,6 +42,8 @@ class ProgressRepository extends BaseRepository {
     await prefs.setString('cards', jsonEncode(cards.map((k, v) => MapEntry(k, v.toJson()))));
     await prefs.setStringList('learnedWords', learnedWords.toList());
     await prefs.setStringList('unlockedAchievements', unlockedAchievements.toList());
+    await prefs.setStringList('claimedQuests', claimedQuests.toList());
+    await prefs.setString('lastLoginDate', lastLoginDate);
   }
 
   void addXP(int amount) {
@@ -71,6 +77,26 @@ class ProgressRepository extends BaseRepository {
     learnedWords.clear();
     unlockedAchievements.clear();
     await save();
+  }
+
+  void claimQuest(String questId, int reward) {
+    if (!claimedQuests.contains(questId)) {
+      claimedQuests.add(questId);
+      addXP(reward);
+    }
+  }
+
+  /// Проверяет, заходил ли пользователь сегодня. Если нет — даёт награду.
+  bool checkDailyReward() {
+    final now = DateTime.now();
+    final today = "${now.year}-${now.month}-${now.day}";
+    if (lastLoginDate != today) {
+      lastLoginDate = today;
+      addXP(50); // Награда за вход
+      save();
+      return true;
+    }
+    return false;
   }
 
   void cheat() {

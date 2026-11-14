@@ -11,6 +11,8 @@ import 'package:ayas_languageland/ui/screens/quests_screen.dart';
 import 'package:ayas_languageland/ui/screens/profile_screen.dart';
 import 'package:ayas_languageland/ui/screens/settings_screen.dart';
 import 'package:ayas_languageland/ui/screens/chat_screen.dart';
+import 'package:ayas_languageland/logic/services/app_state.dart';
+import 'package:ayas_languageland/widgets/daily_reward_dialog.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -22,12 +24,27 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    // Проверяем ежедневную награду при запуске
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (AppState.checkDailyReward()) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => const DailyRewardDialog(),
+        );
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Слушаем смену языка — весь интерфейс перерисуется
+    // Ð¡Ð»ÑƒÑˆÐ°ÐµÐ¼ ÑÐ¼ÐµÐ½Ñƒ ÑÐ·Ñ‹ÐºÐ° â€” Ð²ÐµÑÑŒ Ð¸Ð½Ñ‚ÐµÑ€Ñ„ÐµÐ¹Ñ Ð¿ÐµÑ€ÐµÑ€Ð¸ÑÑƒÐµÑ‚ÑÑ
     return ValueListenableBuilder<String>(
       valueListenable: AppLoc.lang,
       builder: (context, langCode, child) {
-        // ВАЖНО: БЕЗ const! Иначе Flutter не перерисует экраны при смене языка.
+        // Ð’ÐÐ–ÐÐž: Ð‘Ð•Ð— const! Ð˜Ð½Ð°Ñ‡Ðµ Flutter Ð½Ðµ Ð¿ÐµÑ€ÐµÑ€Ð¸ÑÑƒÐµÑ‚ ÑÐºÑ€Ð°Ð½Ñ‹ Ð¿Ñ€Ð¸ ÑÐ¼ÐµÐ½Ðµ ÑÐ·Ñ‹ÐºÐ°.
         final List<Widget> screens = [
           MapScreen(),
           KanaScreen(),

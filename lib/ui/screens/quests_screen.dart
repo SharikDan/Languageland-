@@ -4,7 +4,7 @@ import 'package:ayas_languageland/logic/services/app_state.dart';
 import 'package:ayas_languageland/logic/services/app_localizations.dart';
 import 'package:ayas_languageland/models/quest_def.dart';
 
-// Экран квестов / Quests screen
+// Ð­ÐºÑ€Ð°Ð½ ÐºÐ²ÐµÑÑ‚Ð¾Ð² / Quests screen
 class QuestsScreen extends StatelessWidget {
   const QuestsScreen({super.key});
 
@@ -55,10 +55,14 @@ class QuestsScreen extends StatelessWidget {
                 itemCount: questsData.length,
                 itemBuilder: (context, index) {
                   final quest = questsData[index];
+                  final isEn = AppLoc.lang.value == 'en';
+                  final title = isEn ? quest.titleEn : quest.title;
+                  final desc = isEn ? quest.descriptionEn : quest.description;
+                  final isClaimed = AppState.claimedQuests.contains(quest.id);
                   final currentProgress = getProgressForQuest(quest.id);
                   final isCompleted = currentProgress >= quest.targetCount;
                   
-                  // Выбираем язык для квеста / Choose language for quest
+                  // Ð’Ñ‹Ð±Ð¸Ñ€Ð°ÐµÐ¼ ÑÐ·Ñ‹Ðº Ð´Ð»Ñ ÐºÐ²ÐµÑÑ‚Ð° / Choose language for quest
                   final isEn = AppLoc.lang.value == 'en';
                   final title = isEn ? quest.titleEn : quest.title;
                   final desc = isEn ? quest.descriptionEn : quest.description;
@@ -89,6 +93,7 @@ class _QuestCard extends StatelessWidget {
   final String title;
   final String description;
   final QuestDef quest;
+  final bool isClaimed;
   final int currentProgress;
   final bool isCompleted;
   final Color cardColor;
@@ -100,7 +105,7 @@ class _QuestCard extends StatelessWidget {
   const _QuestCard({
     required this.title,
     required this.description,
-    required this.quest,
+    required this.quest, required this.isClaimed,
     required this.currentProgress,
     required this.isCompleted,
     required this.cardColor,
@@ -140,17 +145,34 @@ class _QuestCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor)),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: Colors.amber.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(999)),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.bolt, color: Colors.amber, size: 16),
-                          const SizedBox(width: 4),
-                          Text('+${quest.reward} XP', style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12)),
-                        ],
+                    if (isClaimed)
+                      const Icon(Icons.check_circle, color: Colors.green, size: 28)
+                    else if (isCompleted)
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          minimumSize: Size.zero,
+                        ),
+                        onPressed: () {
+                          AppState.claimQuest(quest.id, quest.reward);
+                          setState(() {}); // Обновить UI
+                        },
+                        child: Text('+${quest.reward} XP', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(color: Colors.amber.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(999)),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.bolt, color: Colors.amber, size: 16),
+                            const SizedBox(width: 4),
+                            Text('+${quest.reward} XP', style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12)),
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
