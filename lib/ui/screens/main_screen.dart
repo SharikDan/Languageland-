@@ -23,20 +23,22 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Слушаем смену языка — весь интерфейс перерисуется
     return ValueListenableBuilder<String>(
       valueListenable: AppLoc.lang,
       builder: (context, langCode, child) {
+        // ВАЖНО: БЕЗ const! Иначе Flutter не перерисует экраны при смене языка.
         final List<Widget> screens = [
-          const MapScreen(),
-          const KanaScreen(),
-          const KanjiScreen(),
-          const VocabScreen(),
-          const GrammarScreen(),
-          const ReviewScreen(),
-          const QuestsScreen(),
-          const ChatScreen(),
-          const ProfileScreen(),
-          const SettingsScreen(),
+          MapScreen(),
+          KanaScreen(),
+          KanjiScreen(),
+          VocabScreen(),
+          GrammarScreen(),
+          ReviewScreen(),
+          QuestsScreen(),
+          ChatScreen(),
+          ProfileScreen(),
+          SettingsScreen(),
         ];
 
         return Scaffold(
